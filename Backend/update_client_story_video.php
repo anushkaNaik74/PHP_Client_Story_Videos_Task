@@ -36,22 +36,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $cs_desc                = isset($_POST['cs_desc']) ? $_POST['cs_desc'] : '';
     $cs_status              = isset($_POST['cs_status']) ? $_POST['cs_status'] : '';
 
-    // Update data in the database
-    $update_client_story_videos_query = "UPDATE pr_client_story_videos SET 
-                                pr_csv_client           = '$csv_client', 
-                                pr_csv_event            = '$csv_event', 
-                                pr_csv_link             = '$csv_link', 
-                                pr_cs_desc              = '$cs_desc', 
-                                pr_cs_status            = '$cs_status'
-                                
-                            WHERE pr_csv_id = '$csv_id'";
+    // Extract YouTube video ID from the link
+    $youtube_link = isset($_POST['csv_link']) ? $_POST['csv_link'] : '';
+    $video_id = '';
+    if (preg_match('/(?:youtube(?:-nocookie)?\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/', $youtube_link, $match)) {
+        $video_id = $match[1];
 
-    
-    if (mysqli_query($con, $update_client_story_videos_query)) {
-        echo'<script>alert("Client Story Videos Updated Successfully");</script>';
-        header('location: insert_client_story_video.php');
-    } else {
-        echo "Error: " . $update_client_story_videos_query . "<br>" . mysqli_error($con);
+        // Update data in the database
+        $update_client_story_videos_query = "UPDATE pr_client_story_videos SET 
+                                    pr_csv_client           = '$csv_client', 
+                                    pr_csv_event            = '$csv_event', 
+                                    pr_csv_link             = '$video_id', 
+                                    pr_cs_desc              = '$cs_desc', 
+                                    pr_cs_status            = '$cs_status'
+                                    
+                                WHERE pr_csv_id = '$csv_id'";
+
+        
+        if (mysqli_query($con, $update_client_story_videos_query)) {
+            echo'<script>alert("Client Story Videos Updated Successfully");</script>';
+            header('location: insert_client_story_video.php');
+        } else {
+            echo "Error: " . $update_client_story_videos_query . "<br>" . mysqli_error($con);
+        }
+    } 
+    elseif (preg_match('/^[a-zA-Z0-9_-]{11}$/', $youtube_link)) {
+        // If the input is only the video ID
+        $video_id = $youtube_link;
+        // Update data in the database
+        $update_client_story_videos_query = "UPDATE pr_client_story_videos SET 
+                                    pr_csv_client           = '$csv_client', 
+                                    pr_csv_event            = '$csv_event', 
+                                    pr_csv_link             = '$video_id', 
+                                    pr_cs_desc              = '$cs_desc', 
+                                    pr_cs_status            = '$cs_status'
+                                    
+                                WHERE pr_csv_id = '$csv_id'";
+
+        
+        if (mysqli_query($con, $update_client_story_videos_query)) {
+            echo'<script>alert("Client Story Videos Updated Successfully");</script>';
+            header('location: insert_client_story_video.php');
+        } else {
+            echo "Error: " . $update_client_story_videos_query . "<br>" . mysqli_error($con);
+        }
+    }   
+    else {
+        echo'<script>alert("Is not a YouTube Link");</script>';
     }
 }
 
@@ -64,7 +95,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Client Story Videos</title>
+    <!-- Your custom CSS -->
     <link rel="stylesheet" href="../Styles/insert_client_story_video.css">
+    <!-- YouTube Lite CSS -->
+    <link rel="stylesheet" href="../Styles/lite-yt-embed.css">
+    <script src="./lite-yt-embed.js"></script>
 </head>
 <body>
     <form method="post" enctype="multipart/form-data">

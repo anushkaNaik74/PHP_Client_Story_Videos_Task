@@ -16,6 +16,14 @@ ob_start();
         $cs_desc                   = $_POST['pr_cs_desc'];
         $cs_status                 = $_POST['pr_cs_status'];
 
+        // Extract YouTube video ID from the link
+        $youtube_link = $_POST['pr_csv_link'];
+        $video_id = '';
+        if (preg_match('/(?:youtube(?:-nocookie)?\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/', $youtube_link, $match)) {
+            $video_id = $match[1];
+       
+
+        
 
         // Insert data into the database
         $insert_client_story_videos = "INSERT INTO pr_client_story_videos (
@@ -27,7 +35,7 @@ ob_start();
                             ) VALUES (
                                 '$csv_client', 
                                 '$csv_event', 
-                                '$csv_link', 
+                                '$video_id', 
                                 '$cs_desc', 
                                 '$cs_status'
                             )";
@@ -40,6 +48,10 @@ ob_start();
           exit; // Make sure to exit after redirection
       } else {
           echo "Error: " . $insert_client_story_videos . "<br>" . mysqli_error($con);
+      }
+        }
+        else {
+          echo'<script>alert("Is not a YouTube Link");</script>';
       }
         } 
         
@@ -55,7 +67,11 @@ ob_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Client Story Videos</title>
+    <!-- Your custom CSS -->
     <link rel="stylesheet" href="../Styles/insert_client_story_video.css">
+    <!-- YouTube Lite CSS -->
+    <link rel="stylesheet" href="../Styles/lite-yt-embed.css">
+    <script src="./lite-yt-embed.js"></script>
   </head>
   <body>
   <form id="registration_form" method="post" enctype="multipart/form-data">
@@ -91,6 +107,7 @@ ob_start();
         <input type="submit" name="submit" value="Submit">
       </div>
     </div>
+      
     <h3>Client Story Details</h3>
   <table>
     <tr>
@@ -118,7 +135,9 @@ ob_start();
         <td><?php echo $i++ ?></td>
         <td><?php echo $row['pr_csv_client']?></td>
         <td><?php echo $row['pr_csv_event']?></td>
-        <td><?php echo $row['pr_csv_link']?></td>
+        <td>
+            <lite-youtube videoid="<?php echo $row['pr_csv_link']; ?>"></lite-youtube>
+        </td>
         <td><?php echo $row['pr_cs_desc']?></td>
         <td><?php echo $row['pr_cs_status']?></td>
 
@@ -133,6 +152,28 @@ ob_start();
       }
     ?>
   </table>
+    </form>
+  <?php
+      $i = 1;
+      $select_all_client_story_videos_query = "SELECT * FROM pr_client_story_videos";
+      $select_all_client_story_videos_query_sql = mysqli_query($con, $select_all_client_story_videos_query);
+      $count_select_all_client_story_videos_query = mysqli_num_rows($select_all_client_story_videos_query_sql);
+
+      if($count_select_all_client_story_videos_query  > 0){
+        while ($row = $select_all_client_story_videos_query_sql -> fetch_assoc()) {
+          $id = $row['pr_csv_id'];
+    ?>
+      <div class="grid-container">
+        <div class="grid-container-item">
+          <lite-youtube videoid="<?php echo $row['pr_csv_link']; ?>"></lite-youtube>
+        </div>
+      </div>
+
+    <?php 
+        }
+      }
+    ?>
+
   </body>
 </html>
 
