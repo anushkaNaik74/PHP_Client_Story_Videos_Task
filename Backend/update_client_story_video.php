@@ -118,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="form-row">
                 <label for="pr_csv_link">Link</label>
-                <input type="text" name="csv_link" id="pr_csv_link" value= "<?php echo $csv_link ?>" />
+                <input type="text" name="csv_link" id="pr_csv_link" value="https://www.youtube.com/watch?v=<?php echo $csv_link ?>" />
             </div>
 
             <div class="form-row">
