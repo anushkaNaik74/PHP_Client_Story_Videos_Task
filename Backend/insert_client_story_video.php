@@ -87,7 +87,7 @@ ob_start();
       </div>
 
       <div class="form-row">
-        <label for="pr_csv_link">Image Link</label>
+        <label for="pr_csv_link">Link</label>
         <input type="text" name="pr_csv_link" id="pr_csv_link" placeholder="Enter Video Link" required />
 
       </div>
